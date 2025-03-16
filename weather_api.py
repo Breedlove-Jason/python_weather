@@ -9,9 +9,6 @@ API_KEY = os.getenv("API_KEY")
 BASE_URL = "http://api.openweathermap.org/data/2.5/weather"
 FORECAST_URL = "http://api.openweathermap.org/data/2.5/forecast"
 
-user_city = input("Enter the city name: ")
-
-
 def get_weather_data(city_name):
     params = {"q": city_name, "appid": API_KEY, "units": "metric"}
 
@@ -45,16 +42,43 @@ def get_forecast_data(city_name):
         print(f"API Request failed: {e}")
         return None
 
-
 def parse_weather_data(api_data):
-    city_name = data.get("name")
-    country = data.get("sys", {}).get("country")
-    temp = data.get("main", {}).get("temp")
-    feels_like = data.get("main", {}).get("feels_like")
-    humidity = data.get("main", {}).get("humidity")
-    description = data.get("weather", [{}])[0].get("description")
-    wind_speed = data.get("wind", {}).get("speed")
-    wind_deg = data.get("wind", {}).get("deg")
-    timestamp = data.get("dt")
-    sunrise = data.get("sys", {}).get("sunrise")
-    sunset = data.get("sys", {}).get("sunset")
+    city_name = api_data.get("name")
+    country = api_data.get("sys", {}).get("country")
+    temp = api_data.get("main", {}).get("temp")
+    feels_like = api_data.get("main", {}).get("feels_like")
+    humidity = api_data.get("main", {}).get("humidity")
+    description = api_data.get("weather", [{}])[0].get("description")
+    wind_speed = api_data.get("wind", {}).get("speed")
+    wind_deg = api_data.get("wind", {}).get("deg")
+    timestamp = api_data.get("dt")
+    sunrise = api_data.get("sys", {}).get("sunrise")
+    sunset = api_data.get("sys", {}).get("sunset")
+    return city_name, country, temp, feels_like, humidity, description, wind_speed, wind_deg, timestamp, sunrise, sunset
+
+
+def parse_forecast_data(api_data):
+    forecast_list = []
+    for forecast in api_data.get("list", []):
+        forecast_list.append(
+            {
+                "timestamp": forecast.get("dt"),
+                "temp": forecast.get("main", {}).get("temp"),
+                "feels_like": forecast.get("main", {}).get("feels_like"),
+                "humidity": forecast.get("main", {}).get("humidity"),
+                "description": forecast.get("weather", [{}])[0].get("description"),
+
+            }
+        )
+    return forecast_list
+# def print_weather_data(city_name, country, temp, feels_like, humidity, description, wind_speed, wind_deg, timestamp, sunrise, sunset):
+#     print(f"City: {city_name}, {country}")
+#     print(f"Temperature: {temp}°C")
+#     print(f"Feels like: {feels_like}°C")
+#     print(f"Humidity: {humidity}%")
+#     print(f"Description: {description}")
+#     print(f"Wind Speed: {wind_speed} m/s, {wind_deg}°")
+#     print(f"Timestamp: {timestamp}")
+#     print(f"Sunrise: {sunrise}")
+#     print(f"Sunset: {sunset}")
+
