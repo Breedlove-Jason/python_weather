@@ -33,7 +33,7 @@ def get_forecast_data(city_name):
     }
     try:
         forecast_data = requests.get(FORECAST_URL, params=params).json()
-        forecast_data.raise_for_status()
+        # forecast_data.raise_for_status()
         return forecast_data
     except requests.exceptions.HTTPError:
         print(f"City '{city_name}' not found. Please check spelling.\n")
@@ -57,9 +57,9 @@ def parse_weather_data(api_data):
     return city_name, country, temp, feels_like, humidity, description, wind_speed, wind_deg, timestamp, sunrise, sunset
 
 
-def parse_forecast_data(api_data):
+def parse_forecast_data(forecast_data):
     forecast_list = []
-    for forecast in api_data.get("list", []):
+    for forecast in forecast_data.get("list", []):
         forecast_list.append(
             {
                 "timestamp": forecast.get("dt"),
