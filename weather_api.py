@@ -32,8 +32,9 @@ def get_forecast_data(city_name):
         "cnt": 5,
     }
     try:
-        forecast_data = requests.get(FORECAST_URL, params=params).json()
-        # forecast_data.raise_for_status()
+        response = requests.get(FORECAST_URL, params=params)
+        response.raise_for_status()
+        forecast_data = response.json()
         return forecast_data
     except requests.exceptions.HTTPError:
         print(f"City '{city_name}' not found. Please check spelling.\n")
