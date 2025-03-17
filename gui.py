@@ -1,35 +1,33 @@
-from tkinter import Label, Tk
+from tkinter import Label, Tk, Entry, Button
 from weather_api import get_weather_data, parse_weather_data
 from PIL import ImageTk, Image  # For image handling (needs pillow)
 from utils import load_svg_as_photoimage
 root = Tk()
 root.title("Python Weather App")
+
+# --- Weather Icons ---
+icon_paths = {
+    "clear": "./icons/sun-sharp-solid.svg",
+    "snow": "./icons/snowflake-sharp-solid.svg",
+    "rain": "./icons/umbrella-sharp-solid.svg",
+    "cloud": "./icons/cloud-sharp-solid.svg",
+    "thunder": "./icons/bolt-sharp-solid.svg"
+}
+# --- Widgets ---
+city_entry = Entry(root)
+city_entry.pack()
+
+get_weather_button = Button(root, text="Get Weather", command=lambda: fetch_weather())
+get_weather_button.pack()
+
 result_label = Label(root, text="")
+result_label.pack()
 
-sun_sharp_svg = "./icons/sun-sharp-solid.svg"
-sun_icon = load_svg_as_photoimage(sun_sharp_svg, size=(64, 64))
-sun_icon_label = Label(root, image=sun_icon)
-sun_icon_label.pack()
+# Icon placeholder
+icon_label = Label(root)
+icon_label.pack()
 
-snow_sharp_svg = "./icons/snowflake-sharp-solid.svg"
-snow_icon = load_svg_as_photoimage(snow_sharp_svg, size=(64, 64))
-snow_icon_label = Label(root, image=snow_icon)
-snow_icon_label.pack()
-
-umbrella_sharp_svg = "./icons/umbrella-sharp-solid.svg"
-umbrella_icon = load_svg_as_photoimage(umbrella_sharp_svg, size=(64, 64))
-umbrella_icon_label = Label(root, image=umbrella_icon)
-umbrella_icon_label.pack()
-
-cloud_sharp_svg = "./icons/cloud-sharp-solid.svg"
-cloud_icon = load_svg_as_photoimage(cloud_sharp_svg, size=(64, 64))
-cloud_icon_label = Label(root, image=cloud_icon)
-cloud_icon_label.pack()
-
-bolt_sharp_svg = "./icons/bolt-sharp-solid.svg"
-bolt_icon = load_svg_as_photoimage(bolt_sharp_svg, size=(64, 64))
-bolt_icon_label = Label(root, image=bolt_icon)
-bolt_icon_label.pack()
+#  --- Functions ---
 
 def fetch_weather():
     city = city_entry.get()
@@ -47,8 +45,31 @@ def display_weather(parsed_data):
         f"Temperature: {parsed_data['temp']}°C\n"
         f"Feels like: {parsed_data['feels_like']}°C\n"
         f"Humidity: {parsed_data['humidity']}%\n"
-        f"Description: {parsed_data['description']}\n"
-    )
+        f"Description: {parsed_data['description']}\n")
 
+    # Narrowing of results to specific items
+    desc = parsed_data['description']
+    icon_key = None
+
+    if "clear" in desc:
+        icon_key = "clear"
+    elif "cloud" in desc:
+        icon_key = "cloud"
+    elif "rain" in desc:
+        icon_key = "rain"
+    elif "snow" in desc:
+        icon_key = "snow"
+    elif "thunder" in desc:
+        icon_key = "thunder"
+
+    if icon_key:
+        icon_img = load_svg_as_photoimage(icon_paths[icon_key], size=(64, 64))
+        icon_label.config(image=icon_img)
+        icon_label.image = icon_img
+    else:
+        icon_label.config(image="")
 
 root.mainloop()
+
+
+

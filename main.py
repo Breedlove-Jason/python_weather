@@ -1,6 +1,7 @@
 import cache
 import weather_api
-
+import gui
+import cairosvg
 
 def main():
 
@@ -30,6 +31,8 @@ def main():
         cache.cache_weather_data(parsed_forecast_data, "forecast_cache.txt")
     for items in parsed_forecast_data:
         print("Forecast", items)
+
+    gui.display_weather(parsed_data)
 
 if __name__ == "__main__":
     main()
