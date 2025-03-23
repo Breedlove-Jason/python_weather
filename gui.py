@@ -3,7 +3,6 @@ from tkinter import ttk
 from weather_api import get_weather_data, parse_weather_data
 from utils import load_svg_as_photoimage
 import ttkbootstrap as tb
-from ttkbootstrap.constants import *
 
 # --- Functions ---
 
@@ -90,7 +89,7 @@ def display_weather(parsed_data):
 # --- Main Window Setup ---
 # Use ttkbootstrap's Window with the superhero theme for rounded controls.
 root = tb.Window(themename="superhero")
-root.title("Weather App")
+root.title("")
 root.geometry("500x400")
 root.resizable(False, False)
 
@@ -107,7 +106,7 @@ main_frame = ttk.Frame(root, padding="20")
 main_frame.pack(fill=tk.BOTH, expand=True)
 
 # Header
-header_label = ttk.Label(main_frame, text="Weather App", font=("Helvetica", 20, "bold"))
+header_label = ttk.Label(main_frame, text="Python Weather", font=("Helvetica", 20, "bold"))
 header_label.pack(pady=(0, 20))
 
 # Input Frame using grid to align label, entry, and button
