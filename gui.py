@@ -2,49 +2,82 @@ import tkinter as tk
 from tkinter import ttk
 from weather_api import get_weather_data, parse_weather_data
 from utils import load_svg_as_photoimage
+import ttkbootstrap as tb
+from ttkbootstrap.constants import *
 
 # --- Functions ---
 
 def fetch_weather():
-    city = city_entry.get().strip()
-    if not city:
-        result_label.config(text="Please enter a city name.")
+    """
+    Retrieve weather data for either a city name or a postal code,
+    based on the user's input.
+    """
+    location_input = city_entry.get().strip()
+    if not location_input:
+        # Clear fields if no input
+        city_value.config(text="N/A")
+        temp_value.config(text="N/A")
+        feels_value.config(text="N/A")
+        humid_value.config(text="N/A")
+        desc_value.config(text="N/A")
+        icon_label.config(image="")
         return
-    weather_json = get_weather_data(city)
+
+    weather_json = get_weather_data(location_input)
     if weather_json:
         parsed = parse_weather_data(weather_json)
         display_weather(parsed)
     else:
-        result_label.config(text="Error fetching weather.")
+        # Show an error if data could not be fetched
+        city_value.config(text="Error fetching data")
+        temp_value.config(text="")
+        feels_value.config(text="")
+        humid_value.config(text="")
+        desc_value.config(text="")
+        icon_label.config(image="")
 
 def display_weather(parsed_data):
-    # Access dictionary values rather than unpacking keys
-    city_name = parsed_data.get("city_name", "N/A")
-    country = parsed_data.get("country", "N/A")
-    temp = parsed_data.get("temp", "N/A")
-    feels_like = parsed_data.get("feels_like", "N/A")
-    humidity = parsed_data.get("humidity", "N/A")
-    description = parsed_data.get("description", "N/A")
+    """
+    Update the labels in the details frame with the parsed weather data.
+    Show temperature in both Celsius and Fahrenheit.
+    Place the icon to the right so it doesn't fall off the bottom.
+    """
+    # Extract fields
+    city_str = parsed_data.get("city_name", "N/A")
+    country_str = parsed_data.get("country", "N/A")
 
-    # Format the weather display text
-    text = (f"City: {city_name}, {country}\n"
-            f"Temperature: {temp}°C\n"
-            f"Feels like: {feels_like}°C\n"
-            f"Humidity: {humidity}%\n"
-            f"Description: {description.capitalize()}")
-    result_label.config(text=text)
+    temp_c = parsed_data.get("temp", "N/A")
+    feels_c = parsed_data.get("feels_like", "N/A")
+    humid_str = parsed_data.get("humidity", "N/A")
+    desc_str = parsed_data.get("description", "N/A").capitalize()
 
-    # Determine the icon to display based on the description.
+    # Convert to Fahrenheit if temp is numeric
+    temp_f = "N/A"
+    feels_f = "N/A"
+    if isinstance(temp_c, (int, float)):
+        temp_f = round((temp_c * 9/5) + 32, 1)
+    if isinstance(feels_c, (int, float)):
+        feels_f = round((feels_c * 9/5) + 32, 1)
+
+    # Update label texts
+    city_value.config(text=f"{city_str}, {country_str}")
+    temp_value.config(text=f"{temp_c}°C / {temp_f}°F")
+    feels_value.config(text=f"{feels_c}°C / {feels_f}°F")
+    humid_value.config(text=f"{humid_str}%")
+    desc_value.config(text=desc_str)
+
+    # Determine icon based on description
     icon_key = None
-    if "clear" in description.lower():
+    desc_lower = desc_str.lower()
+    if "clear" in desc_lower:
         icon_key = "clear"
-    elif "cloud" in description.lower():
+    elif "cloud" in desc_lower:
         icon_key = "cloud"
-    elif "rain" in description.lower():
+    elif "rain" in desc_lower:
         icon_key = "rain"
-    elif "snow" in description.lower():
+    elif "snow" in desc_lower:
         icon_key = "snow"
-    elif "thunder" in description.lower():
+    elif "thunder" in desc_lower:
         icon_key = "thunder"
 
     if icon_key:
@@ -52,60 +85,95 @@ def display_weather(parsed_data):
         icon_label.config(image=icon_img)
         icon_label.image = icon_img
     else:
-        icon_label.config(image='')
+        icon_label.config(image="")
 
 # --- Main Window Setup ---
-
-root = tk.Tk()
+# Use ttkbootstrap's Window with the superhero theme for rounded controls.
+root = tb.Window(themename="superhero")
 root.title("Weather App")
 root.geometry("500x400")
 root.resizable(False, False)
 
-# Configure the style for a modern, dark theme.
+# Optional: Remove the following style configuration if you prefer the default bootstrap styling.
+# (Note: ttkbootstrap comes with its own style, so mixing with manual ttk.Style() is not necessary.)
 style = ttk.Style()
-style.theme_use("clam")  # 'clam' theme allows for more customization
+# Do not override the bootstrap theme with "clam":
+# style.theme_use("clam")
+# Base colors, fonts, and other style customizations can be set here if desired.
 
-# Set a dark background and white foreground for a sleek look.
-style.configure("TFrame", background="#2C3E50")
-style.configure("TLabel", background="#2C3E50", foreground="white", font=("Helvetica", 12))
-style.configure("Header.TLabel", background="#2C3E50", foreground="white", font=("Helvetica", 20, "bold"))
-style.configure("TEntry", font=("Helvetica", 12))
-style.configure("TButton", font=("Helvetica", 12), padding=6)
-# Note: TButton backgrounds may depend on the OS. The 'clam' theme is more receptive to customizations.
+# --- Layout ---
 
-# --- Layout Setup ---
-
-# Main container frame with padding
 main_frame = ttk.Frame(root, padding="20")
 main_frame.pack(fill=tk.BOTH, expand=True)
 
 # Header
-header_label = ttk.Label(main_frame, text="Weather App", style="Header.TLabel")
+header_label = ttk.Label(main_frame, text="Weather App", font=("Helvetica", 20, "bold"))
 header_label.pack(pady=(0, 20))
 
-# Input Frame for City Entry
+# Input Frame using grid to align label, entry, and button
 input_frame = ttk.Frame(main_frame)
 input_frame.pack(pady=(0, 10), fill=tk.X)
-city_label = ttk.Label(input_frame, text="Enter City:")
-city_label.pack(side=tk.LEFT, padx=(0, 10))
+input_frame.columnconfigure(1, weight=1)
+
+city_label = ttk.Label(input_frame, text="Enter City or Zip:")
+city_label.grid(row=0, column=0, padx=(0, 10), sticky="w")
+
 city_entry = ttk.Entry(input_frame, width=30)
-city_entry.pack(side=tk.LEFT, fill=tk.X, expand=True)
+city_entry.grid(row=0, column=1, sticky="ew")
 
-# Get Weather Button
-get_weather_button = ttk.Button(main_frame, text="Get Weather", command=fetch_weather)
-get_weather_button.pack(pady=(0, 20))
+# Create the button using ttkbootstrap's Button for rounded, orange appearance.
+get_weather_button = tb.Button(
+    input_frame,
+    text="Get Weather",
+    command=fetch_weather,
+    bootstyle="warning"  # This gives an orange button in the superhero theme
+)
+get_weather_button.grid(row=0, column=2, padx=(10, 0))
 
-# Result Display Frame
-result_frame = ttk.Frame(main_frame)
-result_frame.pack(fill=tk.BOTH, expand=True)
-result_label = ttk.Label(result_frame, text="", anchor="center", justify=tk.CENTER)
-result_label.pack(pady=(10, 10))
+# Results / Details Frame
+details_frame = ttk.Frame(main_frame, padding="15")
+details_frame.pack(fill=tk.X)
 
-# Weather Icon Display
-icon_label = ttk.Label(result_frame)
-icon_label.pack(pady=(10, 10))
+# Configure 3 columns to place icon in the rightmost column
+details_frame.columnconfigure(0, weight=0)
+details_frame.columnconfigure(1, weight=1)
+details_frame.columnconfigure(2, weight=0)
 
-# Icon paths dictionary for weather icons
+# Row 0: City
+city_header = ttk.Label(details_frame, text="City:", font=("Helvetica", 12, "bold"))
+city_header.grid(row=0, column=0, sticky=tk.W, padx=5, pady=5)
+city_value = ttk.Label(details_frame, text="", font=("Helvetica", 12))
+city_value.grid(row=0, column=1, sticky=tk.W, padx=5, pady=5)
+
+# Row 1: Temperature
+temp_header = ttk.Label(details_frame, text="Temperature:", font=("Helvetica", 12, "bold"))
+temp_header.grid(row=1, column=0, sticky=tk.W, padx=5, pady=5)
+temp_value = ttk.Label(details_frame, text="", font=("Helvetica", 12))
+temp_value.grid(row=1, column=1, sticky=tk.W, padx=5, pady=5)
+
+# Row 2: Feels Like
+feels_header = ttk.Label(details_frame, text="Feels like:", font=("Helvetica", 12, "bold"))
+feels_header.grid(row=2, column=0, sticky=tk.W, padx=5, pady=5)
+feels_value = ttk.Label(details_frame, text="", font=("Helvetica", 12))
+feels_value.grid(row=2, column=1, sticky=tk.W, padx=5, pady=5)
+
+# Row 3: Humidity
+humid_header = ttk.Label(details_frame, text="Humidity:", font=("Helvetica", 12, "bold"))
+humid_header.grid(row=3, column=0, sticky=tk.W, padx=5, pady=5)
+humid_value = ttk.Label(details_frame, text="", font=("Helvetica", 12))
+humid_value.grid(row=3, column=1, sticky=tk.W, padx=5, pady=5)
+
+# Row 4: Description
+desc_header = ttk.Label(details_frame, text="Description:", font=("Helvetica", 12, "bold"))
+desc_header.grid(row=4, column=0, sticky=tk.W, padx=5, pady=5)
+desc_value = ttk.Label(details_frame, text="", font=("Helvetica", 12))
+desc_value.grid(row=4, column=1, sticky=tk.W, padx=5, pady=5)
+
+# Icon in the rightmost column, spanning multiple rows
+icon_label = ttk.Label(details_frame)
+icon_label.grid(row=0, column=2, rowspan=5, padx=(10, 0), pady=5, sticky="n")
+
+# Weather Icon Paths
 icon_paths = {
     "clear": "./icons/sun-sharp-solid.svg",
     "snow": "./icons/snowflake-sharp-solid.svg",
