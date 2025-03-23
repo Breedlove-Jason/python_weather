@@ -44,18 +44,33 @@ def get_forecast_data(city_name):
         return None
 
 def parse_weather_data(api_data):
-    city_name = api_data.get("name")
-    country = api_data.get("sys", {}).get("country")
-    temp = api_data.get("main", {}).get("temp")
-    feels_like = api_data.get("main", {}).get("feels_like")
-    humidity = api_data.get("main", {}).get("humidity")
-    description = api_data.get("weather", [{}])[0].get("description")
-    wind_speed = api_data.get("wind", {}).get("speed")
-    wind_deg = api_data.get("wind", {}).get("deg")
-    timestamp = api_data.get("dt")
-    sunrise = api_data.get("sys", {}).get("sunrise")
-    sunset = api_data.get("sys", {}).get("sunset")
-    return city_name, country, temp, feels_like, humidity, description, wind_speed, wind_deg, timestamp, sunrise, sunset
+    print(type(api_data))
+    data = {
+        "city_name": api_data.get("name"),
+        "country": api_data.get("sys", {}).get("country"),
+        "temp": api_data.get("main", {}).get("temp"),
+        "feels_like": api_data.get("main", {}).get("feels_like"),
+        "humidity": api_data.get("main", {}).get("humidity"),
+        "description": api_data.get("weather", [{}])[0].get("description"),
+        "wind_speed": api_data.get("wind", {}).get("speed"),
+        "wind_deg": api_data.get("wind", {}).get("deg"),
+        "timestamp": api_data.get("dt"),
+        "sunrise": api_data.get("sys", {}).get("sunrise"),
+        "sunset": api_data.get("sys", {}).get("sunset"),
+    }
+    # city_name = api_data.get("name")
+    # country = api_data.get("sys", {}).get("country")
+    # temp = api_data.get("main", {}).get("temp")
+    # feels_like = api_data.get("main", {}).get("feels_like")
+    # humidity = api_data.get("main", {}).get("humidity")
+    # description = api_data.get("weather", [{}])[0].get("description")
+    # wind_speed = api_data.get("wind", {}).get("speed")
+    # wind_deg = api_data.get("wind", {}).get("deg")
+    # timestamp = api_data.get("dt")
+    # sunrise = api_data.get("sys", {}).get("sunrise")
+    # sunset = api_data.get("sys", {}).get("sunset")
+    # return city_name, country, temp, feels_like, humidity, description, wind_speed, wind_deg, timestamp, sunrise, sunset
+    return data
 
 
 def parse_forecast_data(forecast_data):
