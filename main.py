@@ -3,6 +3,7 @@ import weather_api
 import gui
 import cairosvg
 
+
 def main():
 
     user_city = input("Enter the city name: ")
@@ -22,7 +23,9 @@ def main():
     # get 5-day forecast data
     forecast_data = weather_api.get_forecast_data(user_city)
     parsed_forecast_data = weather_api.parse_forecast_data(forecast_data)
-    cached_data = cache.read_cached_weather_data("forecast_cache.txt", expiry_seconds=3600)
+    cached_data = cache.read_cached_weather_data(
+        "forecast_cache.txt", expiry_seconds=3600
+    )
     if cached_data:
         print("Using cached forecast data.")
         # Use cached_data
@@ -33,6 +36,7 @@ def main():
         print("Forecast", items)
 
     gui.display_weather(parsed_data)
+
 
 if __name__ == "__main__":
     main()

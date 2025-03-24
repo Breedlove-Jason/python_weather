@@ -3,8 +3,10 @@ from tkinter import ttk
 from weather_api import get_weather_data, parse_weather_data
 from utils import load_svg_as_photoimage
 import ttkbootstrap as tb
+from datetime import datetime
 
 # --- Functions ---
+
 
 def fetch_weather():
     """
@@ -35,6 +37,7 @@ def fetch_weather():
         desc_value.config(text="")
         icon_label.config(image="")
 
+
 def display_weather(parsed_data):
     """
     Update the labels in the details frame with the parsed weather data.
@@ -54,9 +57,9 @@ def display_weather(parsed_data):
     temp_f = "N/A"
     feels_f = "N/A"
     if isinstance(temp_c, (int, float)):
-        temp_f = round((temp_c * 9/5) + 32, 1)
+        temp_f = round((temp_c * 9 / 5) + 32, 1)
     if isinstance(feels_c, (int, float)):
-        feels_f = round((feels_c * 9/5) + 32, 1)
+        feels_f = round((feels_c * 9 / 5) + 32, 1)
 
     # Update label texts
     city_value.config(text=f"{city_str}, {country_str}")
@@ -65,6 +68,17 @@ def display_weather(parsed_data):
     humid_value.config(text=f"{humid_str}%")
     desc_value.config(text=desc_str)
 
+    # Weather Icon Paths
+    icon_paths = {
+        "clear": "./icons/sun-sharp-solid.svg",
+        "snow": "./icons/snowflake-sharp-solid.svg",
+        "rain": "./icons/cloud-rain.svg",
+        "cloud": "./icons/cloud-sharp-solid.svg",
+        "thunder": "./icons/bolt-sharp-solid.svg",
+        "mist": "./icons/mist.svg",
+        "partly-cloudy": "./partly-cloudy.svg",
+    }
+
     # Determine icon based on description
     icon_key = None
     desc_lower = desc_str.lower()
@@ -72,8 +86,12 @@ def display_weather(parsed_data):
         icon_key = "clear"
     elif "cloud" in desc_lower:
         icon_key = "cloud"
+    elif "partly" in desc_lower and "cloud" in desc_lower:
+        icon_key = "partly-cloudy"
     elif "rain" in desc_lower:
         icon_key = "rain"
+    elif "mist" in desc_lower:
+        icon_key = "mist"
     elif "snow" in desc_lower:
         icon_key = "snow"
     elif "thunder" in desc_lower:
@@ -85,6 +103,7 @@ def display_weather(parsed_data):
         icon_label.image = icon_img
     else:
         icon_label.config(image="")
+
 
 # --- Main Window Setup ---
 # Use ttkbootstrap's Window with the superhero theme for rounded controls.
@@ -106,7 +125,9 @@ main_frame = ttk.Frame(root, padding="20")
 main_frame.pack(fill=tk.BOTH, expand=True)
 
 # Header
-header_label = ttk.Label(main_frame, text="Python Weather", font=("Helvetica", 20, "bold"))
+header_label = ttk.Label(
+    main_frame, text="Python Weather", font=("Helvetica", 20, "bold")
+)
 header_label.pack(pady=(0, 20))
 
 # Input Frame using grid to align label, entry, and button
@@ -125,7 +146,7 @@ get_weather_button = tb.Button(
     input_frame,
     text="Get Weather",
     command=fetch_weather,
-    bootstyle="warning"  # This gives an orange button in the superhero theme
+    bootstyle="warning",  # This gives an orange button in the superhero theme
 )
 get_weather_button.grid(row=0, column=2, padx=(10, 0))
 
@@ -145,25 +166,33 @@ city_value = ttk.Label(details_frame, text="", font=("Helvetica", 12))
 city_value.grid(row=0, column=1, sticky=tk.W, padx=5, pady=5)
 
 # Row 1: Temperature
-temp_header = ttk.Label(details_frame, text="Temperature:", font=("Helvetica", 12, "bold"))
+temp_header = ttk.Label(
+    details_frame, text="Temperature:", font=("Helvetica", 12, "bold")
+)
 temp_header.grid(row=1, column=0, sticky=tk.W, padx=5, pady=5)
 temp_value = ttk.Label(details_frame, text="", font=("Helvetica", 12))
 temp_value.grid(row=1, column=1, sticky=tk.W, padx=5, pady=5)
 
 # Row 2: Feels Like
-feels_header = ttk.Label(details_frame, text="Feels like:", font=("Helvetica", 12, "bold"))
+feels_header = ttk.Label(
+    details_frame, text="Feels like:", font=("Helvetica", 12, "bold")
+)
 feels_header.grid(row=2, column=0, sticky=tk.W, padx=5, pady=5)
 feels_value = ttk.Label(details_frame, text="", font=("Helvetica", 12))
 feels_value.grid(row=2, column=1, sticky=tk.W, padx=5, pady=5)
 
 # Row 3: Humidity
-humid_header = ttk.Label(details_frame, text="Humidity:", font=("Helvetica", 12, "bold"))
+humid_header = ttk.Label(
+    details_frame, text="Humidity:", font=("Helvetica", 12, "bold")
+)
 humid_header.grid(row=3, column=0, sticky=tk.W, padx=5, pady=5)
 humid_value = ttk.Label(details_frame, text="", font=("Helvetica", 12))
 humid_value.grid(row=3, column=1, sticky=tk.W, padx=5, pady=5)
 
 # Row 4: Description
-desc_header = ttk.Label(details_frame, text="Description:", font=("Helvetica", 12, "bold"))
+desc_header = ttk.Label(
+    details_frame, text="Description:", font=("Helvetica", 12, "bold")
+)
 desc_header.grid(row=4, column=0, sticky=tk.W, padx=5, pady=5)
 desc_value = ttk.Label(details_frame, text="", font=("Helvetica", 12))
 desc_value.grid(row=4, column=1, sticky=tk.W, padx=5, pady=5)
@@ -172,13 +201,45 @@ desc_value.grid(row=4, column=1, sticky=tk.W, padx=5, pady=5)
 icon_label = ttk.Label(details_frame)
 icon_label.grid(row=0, column=2, rowspan=5, padx=(10, 0), pady=5, sticky="n")
 
-# Weather Icon Paths
-icon_paths = {
-    "clear": "./icons/sun-sharp-solid.svg",
-    "snow": "./icons/snowflake-sharp-solid.svg",
-    "rain": "./icons/umbrella-sharp-solid.svg",
-    "cloud": "./icons/cloud-sharp-solid.svg",
-    "thunder": "./icons/bolt-sharp-solid.svg"
-}
+
+def display_forecast(forecast_list):
+    # Define forecast_frame
+    forecast_frame = ttk.Frame(main_frame)
+    forecast_frame.pack(fill=tk.X)
+
+    # Clear previous forecast cards if any
+    for widget in forecast_frame.winfo_children():
+        widget.destroy()
+
+    # Iterate over the forecast items and create a card for each
+    for i, forecast in enumerate(forecast_list):
+        card = ttk.Frame(forecast_frame, padding=10, style="Card.TFrame")
+        card.grid(row=i, column=0, padx=10, pady=5, sticky="n")
+
+        timestamp = forecast.get("timestamp")
+        try:
+            dt = datetime.fromtimestamp(timestamp)
+            date_str = dt.strftime("%a %I:%M %p")
+        except Exception as e:
+            date_str = "N/A"
+
+        # Date label
+        date_label = ttk.Label(card, text=date_str, font=("Helvetica", 10, "bold"))
+        date_label.pack(pady=(0, 5))
+
+        # Forecast Icon (using a smaller size)
+        desc = forecast.get("description", "N/A").lower()
+        icon_key = None
+        if "clear" in desc:
+            icon_key = "clear"
+        elif "cloud" in desc:
+            icon_key = "cloud"
+        elif "rain" in desc:
+            icon_key = "rain"
+        elif "snow" in desc:
+            icon_key = "snow"
+        elif "thunder" in desc:
+            icon_key = "thunder"
+
 
 root.mainloop()

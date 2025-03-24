@@ -9,6 +9,7 @@ API_KEY = os.getenv("API_KEY")
 BASE_URL = "http://api.openweathermap.org/data/2.5/weather"
 FORECAST_URL = "http://api.openweathermap.org/data/2.5/forecast"
 
+
 def get_weather_data(location):
     if location.isdigit():
         # Treat the input as a US zip code
@@ -48,6 +49,7 @@ def get_forecast_data(city_name):
         print(f"API Request failed: {e}")
         return None
 
+
 def parse_weather_data(api_data):
     print(type(api_data))
     data = {
@@ -77,8 +79,6 @@ def parse_forecast_data(forecast_data):
                 "feels_like": forecast.get("main", {}).get("feels_like"),
                 "humidity": forecast.get("main", {}).get("humidity"),
                 "description": forecast.get("weather", [{}])[0].get("description"),
-
             }
         )
     return forecast_list
-
