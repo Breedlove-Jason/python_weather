@@ -2,6 +2,16 @@ import cairosvg
 from PIL import Image, ImageTk
 import io
 
+icon_paths = {
+    "clear": "./icons/sun-sharp-solid.svg",
+    "partly-cloudy": "./icons/partly-cloudy.svg",
+    "cloud": "./icons/cloud-sharp-solid.svg",
+    "rain": "./icons/cloud-rain.svg",
+    "snow": "./icons/snowflake-sharp-solid.svg",
+    "thunder": "./icons/bolt-sharp-solid.svg",
+    "mist": "./icons/mist.svg",
+}
+
 
 def load_svg_as_photoimage(svg_path, size=(50, 50)):
     try:
@@ -32,3 +42,23 @@ def get_weather_icon(desc, size=(64, 64)):
     :param size: Tuple for the size of the icon (width, height).
     :return: PhotoImage if a matching icon is found; otherwise, None.
     """
+    desc_lower = desc.lower()
+    icon_key = None
+    if "clear" in desc_lower:
+        icon_key = "clear"
+    elif "partly" in desc_lower and "cloud" in desc_lower:
+        icon_key = "partly-cloudy"
+    elif "cloud" in desc_lower:
+        icon_key = "cloud"
+    elif "rain" in desc_lower:
+        icon_key = "rain"
+    elif "snow" in desc_lower:
+        icon_key = "snow"
+    elif "thunder" in desc_lower:
+        icon_key = "thunder"
+    elif "mist" in desc_lower:
+        icon_key = "mist"
+
+    if icon_key:
+        return load_svg_as_photoimage(icon_paths.get(icon_key), size=size)
+    return None
